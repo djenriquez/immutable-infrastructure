@@ -13,7 +13,7 @@ build:
     pull: true
   ci:
     - echo "Run some tests if you want"
-    - if [[ $BRANCH == master ]]; then BUCKET_PATH=development; else BUCKET_PATH=$BRANCH; fi
+    - if [[ $BRANCH == master ]]; then BUCKET_PATH=dev; else BUCKET_PATH=$BRANCH; fi
     - if [[ $IS_GIT_TAG == true ]]; then BUCKET_PATH=$GIT_TAG_NAME; fi
     - echo "Syncing ${BUCKET_PATH}"
     - docker build -t immutability --build-arg BUCKET_PATH=${BUCKET_PATH} .
