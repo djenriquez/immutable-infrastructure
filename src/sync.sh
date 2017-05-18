@@ -11,6 +11,6 @@ rm -rf /etc/immutable-infrastructure/examples/
 rm -rf /etc/immutable-infrastructure/terraform/
 
 # Perform sync
-aws s3 sync /etc/immutable-infrastructure/ s3://immutable-infrastructure/${BUCKET_PATH}/ --region us-east-1 --delete \
+aws s3 sync /etc/immutable-infrastructure/ s3://immutable-infrastructure/${BUCKET_PATH}/ --region us-west-2 --delete \
 --exclude "*.key" \
 --exclude "*.pem"
