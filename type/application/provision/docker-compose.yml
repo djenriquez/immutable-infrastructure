@@ -1,0 +1,23 @@
+---
+version: '2'
+services:
+    ecs-agent:
+        depends_on:
+            - watcher
+        container_name: ecs-agent
+        image: amazon/amazon-ecs-agent:${ECS_AGENT_TAG}
+        network_mode: host
+        restart: always
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/log/ecs/:/log
+            - /var/lib/ecs/data:/data
+            - /sys/fs/cgroup:/sys/fs/cgroup:ro
+            - /run/runc:/var/lib/docker/execdriver/native:ro
+        environment:
+            ECS_LOGFILE: /log/ecs-agent.log
+            ECS_LOGLEVEL: info
+            ECS_DATADIR: /data
+            ECS_DISABLE_IMAGE_CLEANUP: 'true'
+            ECS_CLUSTER: ${TENANT}-${APP_ENV}
+        env_file: /etc/ecs/ecs.config

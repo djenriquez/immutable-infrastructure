@@ -1,0 +1,21 @@
+language: node_js
+
+node_js:
+  - 5.10
+
+env:
+  - secure: sI44vqTv0EMvhAM4UCbA8dnKrYCn8IIf1jDCPZASf2xBhNxuDFjjktEQxOPYul999yakhAymYkn9pTS9Tz+aGEHfKAoYUA6BzbSiJ5xH0tAU3CeIImQGoNiQrHtKdFNLC0C0suK1ifMLs3brG+iwOtuOCyxMSiyBddnktq0ezR9nUSgfaTjO9CydYA8SIQ1PSIOAlZv4XzpMuODeOLhje60Lot9bfATphCXXRWHlN9JGC+PGFHGnj/eR325kCBhaZnaqmzy/YUhRbEVFFFNwaTvGHBb0SPIeuBNKuI1yLjxqH4uKnVZOIcWB5bERltPRHusRDDqAXpj3sqP1gjClSA==
+
+build:
+  pre_ci_boot:
+    image_name: djenriquez/ci
+    image_tag: latest
+    pull: true
+  ci:
+    - echo "Run some tests if you want"
+    - if [[ $BRANCH == master ]]; then BUCKET_PATH=development; else BUCKET_PATH=$BRANCH; fi
+    - if [[ $IS_GIT_TAG == true ]]; then BUCKET_PATH=$GIT_TAG_NAME; fi
+    - echo "Syncing ${BUCKET_PATH}"
+    - docker build -t immutability --build-arg BUCKET_PATH=${BUCKET_PATH} .
+  post_ci:
+    - docker run -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} immutability /sync.sh
