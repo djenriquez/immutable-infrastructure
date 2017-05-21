@@ -8,7 +8,7 @@ data "aws_ami" "ami" {
 
     filter {
         name = "name"
-        values = ["ubuntu-dependencies-*"]
+        values = ["ubuntu-docker-base*"]
     }
 
 }

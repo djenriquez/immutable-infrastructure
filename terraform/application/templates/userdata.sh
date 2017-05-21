@@ -13,7 +13,7 @@ export ENVIRONMENT=`aws ec2 describe-tags --filters "Name=resource-id,Values=$IN
 
 # Fetch infrastructure version from Consul
 export VERSION=`curl consul.immutable-infrastructure.djenriquez.com/v1/kv/provisioning/$TENANT/$TYPE/version?raw`
-if [[ -z $VERSION ]]; then
+if [[ -z $VERSION ]] || [[ $VERSION == "No cluster leader" ]]; then
   export VERSION=dev
 fi
 
