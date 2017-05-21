@@ -1,20 +1,27 @@
 #!/bin/bash
 
+# AWS Metadata
+export EC2_AVAIL_ZONE=`curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
+export AWS_REGION="`echo \"$EC2_AVAIL_ZONE\" | sed -e 's:\([0-9][0-9]*\)[a-z]*\$:\\1:'`"
+export INSTANCE_ID=$(curl http://169.254.169.254/latest/meta-data/instance-id)
 export IPV4=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
-export DATACENTER=demo
-export TENANT=demo
-export TYPE=consul
-export CONSUL_SIZE=3
 
-docker pull consul:0.8.3
+# Fetch Tagged Metadata
+export TYPE=`aws ec2 describe-tags --filters "Name=resource-id,Values=$INSTANCE_ID" "Name=key,Values=Type" --region us-west-2 | jq -r .Tags[0].Value`
+export TENANT=`aws ec2 describe-tags --filters "Name=resource-id,Values=$INSTANCE_ID" "Name=key,Values=Tenant" --region us-west-2 | jq -r .Tags[0].Value`
+export ENVIRONMENT=`aws ec2 describe-tags --filters "Name=resource-id,Values=$INSTANCE_ID" "Name=key,Values=Environment" --region us-west-2 | jq -r .Tags[0].Value`
 
-docker run -d \
---name consul \
---net host \
--e CONSUL_LOCAL_CONFIG='
-{
-    "skip_leave_on_interrupt": false, 
-    "leave_on_terminate": true
-}' \
-consul:0.8.3 \
-agent -server -ui -client 0.0.0.0 -bind $IPV4 -datacenter $DATACENTER -bootstrap-expect $CONSUL_SIZE -retry-join-ec2-tag-key Tenant -retry-join-ec2-tag-value $DATACENTER -node-meta server:$TENANT-$TYPE
+# Fetch infrastructure version from Consul
+export VERSION=`curl consul.immutable-infrastructure.djenriquez.com/v1/kv/provisioning/$TENANT/$TYPE/version?raw`
+if [[ -z $VERSION ]]; then
+  export VERSION=dev
+fi
+
+# Download start up script
+aws s3 cp s3://immutable-infrastructure/$VERSION/type/$TYPE/provision.sh /tmp/provision.sh --region us-west-2
+
+# Make script executable
+chmod a+x /tmp/provision.sh
+
+# Execute start-up script
+. /tmp/provision.sh
