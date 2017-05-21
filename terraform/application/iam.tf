@@ -24,8 +24,8 @@ data "aws_iam_policy_document" "provisioning" {
         "s3:List*"
     ]
     resources = [
-        "arn:aws:s3:::immuable-infrastructure",
-        "arn:aws:s3:::immuable-infrastructure/*"
+        "arn:aws:s3:::immutable-infrastructure",
+        "arn:aws:s3:::immutable-infrastructure/*"
     ]
   }
   statement {
