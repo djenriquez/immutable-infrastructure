@@ -3,7 +3,7 @@
 export IPV4=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
 export DATACENTER=$TENANT
 export CONSUL_SIZE=3
-export CONSUL_TAG=0.8.2
+export CONSUL_TAG=0.8.3
 
 # Download all scripts and run in parallel
 aws s3 cp s3://immutable-infrastructure/${VERSION}/type/${TYPE}/provision /etc/provision/ --region us-west-2 --recursive
